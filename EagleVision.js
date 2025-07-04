@@ -3,7 +3,7 @@ import * as THREE from 'three';
 // Batch size for highlighting per frame to avoid lag
 const HIGHLIGHT_BATCH_SIZE = 5;
 
-export class EagleVision {  // Added 'export' here
+export class EagleVision {  // Changed to export class directly
   constructor(scene, galleryScene, renderer, modelLoader, portfolioAnalytics) {
     this.scene = scene;
     this.galleryScene = galleryScene;
