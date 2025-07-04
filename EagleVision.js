@@ -1,9 +1,10 @@
+// EagleVision.js
 import * as THREE from 'three';
 
 // Batch size for highlighting per frame to avoid lag
 const HIGHLIGHT_BATCH_SIZE = 5;
 
-class EagleVision {
+export default class EagleVision {  // Changed to export default
   constructor(scene, galleryScene, renderer, modelLoader, portfolioAnalytics) {
     this.scene = scene;
     this.galleryScene = galleryScene;
@@ -103,9 +104,6 @@ class EagleVision {
   }
   
   startVisualEffects() {
-    // Create a clipped area for the eagle vision effect
-    const canvas = this.renderer.domElement;
-    
     // Show window with eagle vision effect
     this.window.style.display = 'block';
     setTimeout(() => {
@@ -123,10 +121,6 @@ class EagleVision {
     if (!this.isActive) return;
     
     this.isActive = false;
-    
-    // Reset visual effects
-    const canvas = this.renderer.domElement;
-    canvas.style.filter = 'none';
     
     // Hide window
     this.window.style.opacity = '0';
@@ -198,5 +192,3 @@ class EagleVision {
     }
   }
 }
-
-export default EagleVision;
