@@ -135,19 +135,36 @@ loadingManager.onLoad = function() {
 
 window.closeOverlay = function(name) {
   const overlay = document.getElementById('overlay-'+name);
-  if (overlay) {
-    overlay.classList.remove('visible');
-    overlay.style.display = 'none';
-    
-    
-    if (name === 'home' && allModelsLoaded) {
-      gameStarted = true;
-      const container = document.getElementById('three-canvas');
-      if (container && !document.pointerLockElement) {
-        container.requestPointerLock();
-      }
+  if (!overlay) return; // Add this check
+  
+  overlay.classList.remove('visible');
+  overlay.style.display = 'none';
+  
+  if (name === 'home' && allModelsLoaded) {
+    gameStarted = true;
+    const container = document.getElementById('three-canvas');
+    if (container && !document.pointerLockElement) {
+      container.requestPointerLock();
     }
-  }};
+  }
+};
+
+window.openOverlay = function(name) {
+  if (!allModelsLoaded) return;
+  
+  const allOverlays = document.querySelectorAll('.overlay');
+  allOverlays.forEach(o => o.classList?.remove('visible'));
+  
+  const targetOverlay = document.getElementById('overlay-'+name);
+  if (targetOverlay) {
+    targetOverlay.style.display = 'block';
+    targetOverlay.classList.add('visible');
+  }
+  
+  if (name === 'home') {
+    gameStarted = false;
+  }
+};
 
 window.openOverlay = function(name) {
   if (!allModelsLoaded) return;
@@ -1884,42 +1901,39 @@ if (window.currentKeyInView && inventorySystem) {
   let lastTime = performance.now();
   
   function animate() {
-  let now = performance.now(), dt = (now-lastTime)/1000;
-  lastTime = now;
-  if (eagleVision) {
-  eagleVision.update();
-}
-  updateUIVisibility();
-  updateDayNightCycle();
-  
-  modelLoader.update(dt);
-  
-  if(gameStarted && !document.getElementById('overlay-home').classList.contains('visible') && !overlays.isPaperReadingMode()) {
-    moveCharacter(dt);
-    checkPortalView();
+  try {
+    let now = performance.now();
+    let dt = (now - lastTime) / 1000;
+    lastTime = now;
+    
+    updateUIVisibility();
+    updateDayNightCycle();
+    
+    if (eagleVision && typeof eagleVision.update === 'function') {
+      eagleVision.update();
+    }
+    
+    modelLoader.update(dt);
+    
+    if (gameStarted && !document.getElementById('overlay-home')?.classList.contains('visible') && !overlays.isPaperReadingMode()) {
+      moveCharacter(dt);
+      checkPortalView();
+    }
+    
+    // Rotate models in viewer
+    if (activeScene.userData?.rotatingMesh) {
+      activeScene.userData.rotatingMesh.rotation.y += dt * 0.5;
+    }
+    
+    updateCamera();
+    renderer.render(activeScene, camera);
+    
+  } catch (error) {
+    console.error('Error in animation loop:', error);
+    // Don't stop the animation loop on error
   }
   
-  // Rotate models in viewer
-  if (activeScene.userData && activeScene.userData.rotatingMesh) {
-    activeScene.userData.rotatingMesh.rotation.y += dt * 0.5;
-  }
-  
-  updateCamera();
-  renderer.render(activeScene, camera);
   requestAnimationFrame(animate);
-}
-
-  animate();
-
-} catch (error) {
-  console.error('Fatal error in initialization:', error);
-  document.body.innerHTML = `
-    <div style="padding:20px;color:white;background:rgba(0,0,0,0.8)">
-      <h2>Error Loading Scene</h2>
-      <p>${error.message}</p>
-      <p>console for more details.</p>
-    </div>
-  `;
 }
 
 //Debug
