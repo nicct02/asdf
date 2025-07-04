@@ -7,7 +7,7 @@ import { ModelLoader } from './modelLoader.js';
 import { InfoWindows } from './infoWindows.js';
 import { Overlays } from './overlays.js';
 import { portfolioAnalytics } from './analytics.js';
-import { EagleVision } from '/EagleVision.js';
+import { EagleVision } from '/asdf/EagleVision.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 //Init core systems
 const infoWindows = new InfoWindows(portfolioAnalytics);
