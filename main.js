@@ -130,20 +130,20 @@ loadingManager.onLoad = function() {
 };
 
 window.closeOverlay = function(name) {
-  const overlay = document.getElementById('overlay-'+name);
-  if (overlay) {
-    overlay.classList.remove('visible');
-    overlay.style.display = 'none';
-    
-    
-    if (name === 'home' && allModelsLoaded) {
-      gameStarted = true;
-      const container = document.getElementById('three-canvas');
-      if (container && !document.pointerLockElement) {
-        container.requestPointerLock();
-      }
+  const overlay = document.getElementById(`overlay-${name}`);
+  if (!overlay) return;
+  
+  overlay.classList.remove('visible');
+  overlay.style.display = 'none';
+  
+  if (name === 'home' && allModelsLoaded) {
+    gameStarted = true;
+    const container = document.getElementById('three-canvas');
+    if (container && !document.pointerLockElement) {
+      container.requestPointerLock();
     }
-  }};
+  }
+};
 
 window.openOverlay = function(name) {
   if (!allModelsLoaded) return;
