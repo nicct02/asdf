@@ -189,11 +189,10 @@ export class EagleVision {  // Changed to export class directly
       this._isHighlighting = false;
     }
   }
-  update() {
-    // Only perform updates if eagle vision is active
+    update() {
     if (!this.isActive) return;
     
-    // Process any remaining highlights
+    // Continue highlighting if there are items in queue
     if (this._highlightQueue.length > 0 && !this._isHighlighting) {
       this._processHighlightQueue();
     }
