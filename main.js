@@ -134,8 +134,10 @@ loadingManager.onLoad = function() {
 };
 
 window.closeOverlay = function(name) {
-  const overlay = document.getElementById('overlay-'+name);
-  if (!overlay) return; // Add this check
+// Make these functions global
+window.closeOverlay = function(name) {
+  const overlay = document.getElementById(`overlay-${name}`);
+  if (!overlay) return;
   
   overlay.classList.remove('visible');
   overlay.style.display = 'none';
@@ -152,10 +154,13 @@ window.closeOverlay = function(name) {
 window.openOverlay = function(name) {
   if (!allModelsLoaded) return;
   
-  const allOverlays = document.querySelectorAll('.overlay');
-  allOverlays.forEach(o => o.classList?.remove('visible'));
+  document.querySelectorAll('.overlay').forEach(o => {
+    if (o && o.classList) {
+      o.classList.remove('visible');
+    }
+  });
   
-  const targetOverlay = document.getElementById('overlay-'+name);
+  const targetOverlay = document.getElementById(`overlay-${name}`);
   if (targetOverlay) {
     targetOverlay.style.display = 'block';
     targetOverlay.classList.add('visible');
@@ -1864,11 +1869,21 @@ if (window.currentKeyInView && inventorySystem) {
   }
 
   function updateUIVisibility() {
-    const showUI = gameStarted && document.pointerLockElement && !overlays.isPaperReadingMode();
-    crosshair.style.display = showUI ? 'block' : 'none';
-    controlsDisplay.style.display = showUI ? 'block' : 'none';
-    timeDisplay.style.display = showUI ? 'block' : 'none'; 
-  }
+  const crosshair = document.getElementById('crosshair');
+  const controlsDisplay = document.getElementById('controls-display');
+  const timeDisplay = document.getElementById('time-display');
+  
+  const showUI = gameStarted && document.pointerLockElement && !overlays.isPaperReadingMode();
+  
+  if (crosshair) crosshair.style.display = showUI ? 'block' : 'none';
+  if (controlsDisplay) controlsDisplay.style.display = showUI ? 'block' : 'none';
+  if (timeDisplay) timeDisplay.style.display = showUI ? 'block' : 'none';
+}
+
+// Add this to handle initial overlay hiding
+document.addEventListener('DOMContentLoaded', () => {
+  hideAllOverlays();
+});
 
   // Pointer lock exit 
   document.addEventListener('pointerlockchange', () => {
