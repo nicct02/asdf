@@ -194,14 +194,7 @@ class EagleVision {
     
     const currentTime = performance.now();
     const elapsed = currentTime - this.startTime;
-    if (this._highlightQueue.length > 0 && !this._isHighlighting) {
-      this._processHighlightQueue();
-    }  }
-  forceDeactivate() {
-    if (this.isActive) {
-      this.deactivate();
-    }
-  }
+    
     // Check if duration has passed
     if (elapsed >= this.duration) {
       this.deactivate();
@@ -300,4 +293,5 @@ class EagleVision {
     this.originalMaterials.clear();
   }
 }
+
 export { EagleVision };
