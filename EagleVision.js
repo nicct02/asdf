@@ -1,10 +1,9 @@
-// EagleVision.js
 import * as THREE from 'three';
 
 // Batch size for highlighting per frame to avoid lag
 const HIGHLIGHT_BATCH_SIZE = 5;
 
-export default class EagleVision {  // Changed to export default
+export class EagleVision {  // Added 'export' here
   constructor(scene, galleryScene, renderer, modelLoader, portfolioAnalytics) {
     this.scene = scene;
     this.galleryScene = galleryScene;
@@ -141,7 +140,6 @@ export default class EagleVision {  // Changed to export default
     this._isHighlighting = false;
   }
   
-  // Batch highlighting to avoid lag
   highlightInteractiveObjects() {
     const objectsToHighlight = [];
     
