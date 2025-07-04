@@ -2,32 +2,31 @@ import * as THREE from 'three';
 
 // Batch size for highlighting per frame to avoid lag
 const HIGHLIGHT_BATCH_SIZE = 5;
+ constructor(scene, galleryScene, renderer, modelLoader, portfolioAnalytics) {
+        this.scene = scene;
+        this.galleryScene = galleryScene;
+        this.renderer = renderer;
+        this.modelLoader = modelLoader;
+        this.portfolioAnalytics = portfolioAnalytics;
+        
+        // State
+        this.isActive = false;
+        this.startTime = 0;
+        this.duration = 3000; // 3 seconds
+        
+        // Visual effects
+        this.overlay = null;
+        this.originalMaterials = new Map();
+        this.highlightedObjects = [];
+        this._highlightQueue = [];
+        this._isHighlighting = false;
+        this.currentScene = null;
+        this.glowMaterial = null;
 
-class EagleVision {
-  constructor(scene, galleryScene, renderer, modelLoader, portfolioAnalytics) {
-    this.scene = scene;
-    this.galleryScene = galleryScene;
-    this.renderer = renderer;
-    this.modelLoader = modelLoader;
-    this.portfolioAnalytics = portfolioAnalytics;
-    
-    // State
-    this.isActive = false;
-    this.startTime = 0;
-    this.duration = 3000; // 3 seconds
-    
-    // Visual effects
-    this.overlay = null;
-    this.originalMaterials = new Map();
-    this.highlightedObjects = [];
-    this._highlightQueue = [];
-    this._isHighlighting = false;
-    this.currentScene = null;
-    this.glowMaterial = null; // Shared material if you want to use one
+        this.init();
+    }
 
-    this.init();
-  }
-  
+    
   init() {
     this.createOverlay();
     console.log('Eagle Vision system initialized');
