@@ -1,0 +1,215 @@
+{
+  "version": "1.0",
+  "created": "2025-07-01T20:39:35.706Z",
+  "isProduction": true,
+  "objects": [
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -1.1720996917589053,
+        "y": 2.628166298530295e-16,
+        "z": -1.1836208762728733
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": 0.5235987755982988,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.6,
+        "z": 0.65
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402329670.0862,
+        "created": "2025-07-01T20:38:49.670Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -3.876711897715918,
+        "y": 2.169098435608576e-16,
+        "z": -0.9768750906336708
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.6,
+        "z": 0.65
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402346139.3403,
+        "created": "2025-07-01T20:39:06.139Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -5.22643870685968,
+        "y": 0,
+        "z": -0.20531292949941193
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.6,
+        "z": 0.65
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402349770.2903,
+        "created": "2025-07-01T20:39:09.770Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -8.203749468166821,
+        "y": 0,
+        "z": 0.6060985155709568
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.6,
+        "z": 0.65
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402351841.2847,
+        "created": "2025-07-01T20:39:11.841Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -4.484236936532305,
+        "y": 0,
+        "z": 1.2171484794210659
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.6,
+        "z": 0.65
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402356872.334,
+        "created": "2025-07-01T20:39:16.872Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -6.916805220666472,
+        "y": 5.087882313414133e-16,
+        "z": -2.2913784890796824
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.6,
+        "z": 0.65
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402360953.4563,
+        "created": "2025-07-01T20:39:20.953Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -9.076129885494176,
+        "y": 0,
+        "z": -0.7251062207378034
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.9000000000000002,
+        "y": 0.9000000000000002,
+        "z": 0.9000000000000002
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402362028.5703,
+        "created": "2025-07-01T20:39:22.028Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    },
+    {
+      "modelName": "desk",
+      "position": {
+        "x": -10.944763324069452,
+        "y": 6.759917511390277e-16,
+        "z": -3.0443961985352543
+      },
+      "rotation": {
+        "x": -3.141592653589793,
+        "y": -1.358407346410207,
+        "z": -3.141592653589793
+      },
+      "scale": {
+        "x": 0.44999999999999996,
+        "y": 0.44999999999999996,
+        "z": 0.44999999999999996
+      },
+      "userData": {
+        "type": "world-builder-object",
+        "modelName": "desk",
+        "id": 1751402363790.1785,
+        "created": "2025-07-01T20:39:23.790Z",
+        "isCollisionShape": false,
+        "shapeType": null
+      }
+    }
+  ]
+}
