@@ -7,13 +7,9 @@ import { ModelLoader } from './modelLoader.js';
 import { InfoWindows } from './infoWindows.js';
 import { Overlays } from './overlays.js';
 import { portfolioAnalytics } from './analytics.js';
+import { EagleVision } from './EagleVision.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-// Change from:
-// import { EagleVision } from './EagleVision.js';
-// to:
-import { EagleVision } from './EagleVision.js';  // This stays the same now that we export the class directly
-
-
+//Init core systems
 const infoWindows = new InfoWindows(portfolioAnalytics);
 const overlays = new Overlays(portfolioAnalytics);
 
@@ -134,42 +130,20 @@ loadingManager.onLoad = function() {
 };
 
 window.closeOverlay = function(name) {
-// Make these functions global
-window.closeOverlay = function(name) {
-  const overlay = document.getElementById(`overlay-${name}`);
-  if (!overlay) return;
-  
-  overlay.classList.remove('visible');
-  overlay.style.display = 'none';
-  
-  if (name === 'home' && allModelsLoaded) {
-    gameStarted = true;
-    const container = document.getElementById('three-canvas');
-    if (container && !document.pointerLockElement) {
-      container.requestPointerLock();
+  const overlay = document.getElementById('overlay-'+name);
+  if (overlay) {
+    overlay.classList.remove('visible');
+    overlay.style.display = 'none';
+    
+    
+    if (name === 'home' && allModelsLoaded) {
+      gameStarted = true;
+      const container = document.getElementById('three-canvas');
+      if (container && !document.pointerLockElement) {
+        container.requestPointerLock();
+      }
     }
-  }
-};
-
-window.openOverlay = function(name) {
-  if (!allModelsLoaded) return;
-  
-  document.querySelectorAll('.overlay').forEach(o => {
-    if (o && o.classList) {
-      o.classList.remove('visible');
-    }
-  });
-  
-  const targetOverlay = document.getElementById(`overlay-${name}`);
-  if (targetOverlay) {
-    targetOverlay.style.display = 'block';
-    targetOverlay.classList.add('visible');
-  }
-  
-  if (name === 'home') {
-    gameStarted = false;
-  }
-};
+  }};
 
 window.openOverlay = function(name) {
   if (!allModelsLoaded) return;
@@ -1869,21 +1843,11 @@ if (window.currentKeyInView && inventorySystem) {
   }
 
   function updateUIVisibility() {
-  const crosshair = document.getElementById('crosshair');
-  const controlsDisplay = document.getElementById('controls-display');
-  const timeDisplay = document.getElementById('time-display');
-  
-  const showUI = gameStarted && document.pointerLockElement && !overlays.isPaperReadingMode();
-  
-  if (crosshair) crosshair.style.display = showUI ? 'block' : 'none';
-  if (controlsDisplay) controlsDisplay.style.display = showUI ? 'block' : 'none';
-  if (timeDisplay) timeDisplay.style.display = showUI ? 'block' : 'none';
-}
-
-// Add this to handle initial overlay hiding
-document.addEventListener('DOMContentLoaded', () => {
-  hideAllOverlays();
-});
+    const showUI = gameStarted && document.pointerLockElement && !overlays.isPaperReadingMode();
+    crosshair.style.display = showUI ? 'block' : 'none';
+    controlsDisplay.style.display = showUI ? 'block' : 'none';
+    timeDisplay.style.display = showUI ? 'block' : 'none'; 
+  }
 
   // Pointer lock exit 
   document.addEventListener('pointerlockchange', () => {
@@ -1921,39 +1885,32 @@ function animate() {
     let dt = (now - lastTime) / 1000;
     lastTime = now;
 
-    // Safely update eagle vision if it exists
     if (eagleVision && typeof eagleVision.update === 'function') {
       eagleVision.update();
     }
-
+    
     updateUIVisibility();
     updateDayNightCycle();
-    
     modelLoader.update(dt);
     
-    if (gameStarted && 
-        document.getElementById('overlay-home')?.classList?.contains('visible') === false && 
-        !overlays.isPaperReadingMode()) {
+    if (gameStarted && !document.getElementById('overlay-home')?.classList?.contains('visible') && !overlays.isPaperReadingMode()) {
       moveCharacter(dt);
       checkPortalView();
     }
     
-    // Rotate models in viewer
     if (activeScene.userData && activeScene.userData.rotatingMesh) {
       activeScene.userData.rotatingMesh.rotation.y += dt * 0.5;
     }
     
     updateCamera();
     renderer.render(activeScene, camera);
-
   } catch (error) {
     console.error('Error in animation loop:', error);
-    // Continue animation even if there's an error
   }
   
   requestAnimationFrame(animate);
 }
-    
+
 //Debug
 window.debugWorldBuilder = function() {
   if (worldBuilder) {
