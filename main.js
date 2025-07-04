@@ -7,7 +7,7 @@ import { ModelLoader } from './modelLoader.js';
 import { InfoWindows } from './infoWindows.js';
 import { Overlays } from './overlays.js';
 import { portfolioAnalytics } from './analytics.js';
-import { EagleVision } from '/asdf/EagleVision.js';
+import { EagleVision } from '/EagleVision.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 //Init core systems
 const infoWindows = new InfoWindows(portfolioAnalytics);
@@ -94,20 +94,20 @@ function updateLoadingProgress(loaded, total) {
   const percentage = Math.round((loaded / total) * 100);
   const progressText = document.getElementById('loading-progress');
   const progressBar = document.getElementById('progress-bar');
-  
+
   if (progressText) progressText.textContent = `Loading models... ${percentage}%`;
   if (progressBar) progressBar.style.width = `${percentage}%`;
-  
+
   if (loaded >= total) {
     if (progressText) progressText.textContent = 'completed';
-    
+
     setTimeout(() => {
       loadingDisplay.style.display = 'none';
       allModelsLoaded = true;
       showHomeOverlay();
       setupFormSubmission();
       console.log('All models loaded - showing home overlay');
-      
+
       if (worldBuilder && worldBuilder.queuedWorldData) {
         setTimeout(async () => {
           const loadedCount = await worldBuilder.loadWorldWhenReady();
@@ -130,31 +130,31 @@ loadingManager.onLoad = function() {
 };
 
 window.closeOverlay = function(name) {
-  const overlay = document.getElementById(`overlay-${name}`);
-  if (!overlay) return;
-  
-  overlay.classList.remove('visible');
-  overlay.style.display = 'none';
-  
-  if (name === 'home' && allModelsLoaded) {
-    gameStarted = true;
-    const container = document.getElementById('three-canvas');
-    if (container && !document.pointerLockElement) {
-      container.requestPointerLock();
+  const overlay = document.getElementById('overlay-'+name);
+  if (overlay) {
+    overlay.classList.remove('visible');
+    overlay.style.display = 'none';
+
+
+    if (name === 'home' && allModelsLoaded) {
+      gameStarted = true;
+      const container = document.getElementById('three-canvas');
+      if (container && !document.pointerLockElement) {
+        container.requestPointerLock();
+      }
     }
-  }
-};
+  }};
 
 window.openOverlay = function(name) {
   if (!allModelsLoaded) return;
-  
+
   document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('visible'));
   const targetOverlay = document.getElementById('overlay-'+name);
   if (targetOverlay) {
     targetOverlay.style.display = 'block';
     targetOverlay.classList.add('visible');
   }
-  
+
   //Stop game when opening overlay
   if (name === 'home') {
     gameStarted = false;
@@ -169,15 +169,15 @@ try {
 
   const scene = new THREE.Scene();
   const galleryScene = new THREE.Scene(); // 3D Art Gallery ONLY gallery
-  
+
   //Individual model viewer scenes
   const cubeViewerScene = new THREE.Scene();
   const sphereViewerScene = new THREE.Scene();
   const cylinderViewerScene = new THREE.Scene();
   const coneViewerScene = new THREE.Scene();
-  
+
   let activeScene = scene; //ttrack scene currently active
-  
+
   const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ 
     antialias: true,
@@ -189,11 +189,11 @@ try {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  
+
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
-  
+
   container.appendChild(renderer.domElement);
 
   // crosshair
@@ -437,7 +437,7 @@ try {
   document.body.appendChild(scrollInfoWindow);
 
 //main scenee =======================================
-  
+
   // sky 
   const skyGeo = new THREE.SphereGeometry(60, 16, 16); //rreduced segments
   const skyMat = new THREE.MeshBasicMaterial({ color:0x89c4f4, side:THREE.BackSide });
@@ -452,16 +452,16 @@ try {
   scene.add(sun);
 
 // day/night cycl =======================================
-  
+
   //config
   const dayNightConfig = {
     speedMultiplier: 360, //Real time 60 for fast cycle
     transitionDuration: 0.3, // smooth transitions 0-1
-    
+
     //Time periods
     sunrise: 6,
     sunset: 20,
-    
+
     // Color config
     colors: {
       day: {
@@ -493,7 +493,7 @@ try {
         fog: 0x7a4a3a
       }
     },
-    
+
   //Light intensity
     intensity: {
       day: { ambient: 0.4, directional: 0.7, sun: 0.8 },
@@ -529,12 +529,12 @@ try {
   //get CEST time
   function getCESTTime() {
     const now = new Date();
-    
+
     //Convert
     const cestOffset = 2 * 60; // CEST is UTC+2
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
     const cestTime = new Date(utc + (cestOffset * 60000));
-    
+
     return cestTime;
   }
 
@@ -550,15 +550,15 @@ try {
     const r1 = (color1 >> 16) & 0xff;
     const g1 = (color1 >> 8) & 0xff;
     const b1 = color1 & 0xff;
-    
+
     const r2 = (color2 >> 16) & 0xff;
     const g2 = (color2 >> 8) & 0xff;
     const b2 = color2 & 0xff;
-    
+
     const r = Math.round(r1 + (r2 - r1) * factor);
     const g = Math.round(g1 + (g2 - g1) * factor);
     const b = Math.round(b1 + (b2 - b1) * factor);
-    
+
     return (r << 16) | (g << 8) | b;
   }
 
@@ -578,7 +578,7 @@ try {
     const sunHeight = Math.sin(sunAngle) * 20 + 5; //Height varies 5 to 25
     const sunX = Math.cos(sunAngle) * 30; // Xposition var
     const sunZ = -40; //Z constant
-    
+
     return {
       x: sunX,
       y: Math.max(sunHeight, 2), //Don't go below horizon
@@ -590,7 +590,7 @@ try {
   function updateDayNightCycle() {
     const currentTime = getAcceleratedTime();
     const hours = currentTime.getHours() + currentTime.getMinutes() / 60;
-    
+
     // Update time display
     const realCEST = getCESTTime();
     timeDisplay.innerHTML = `
@@ -601,7 +601,7 @@ try {
       <div <span style="color: #ffff00;">// maybe add Seasonal theme/change oder so as well (needs assets replaced in ex. winter theme i guess? -> 4 Vers per asset?</span> ${realCEST.toLocaleTimeString('en-GB', { timeZone: 'Europe/Paris' })}</div>
     `;
     let currentColors, currentIntensity, timeOfDay;
-    
+
     //time of day and calculate transitions
     if (hours >= 5 && hours < 7) {
       // Sunrise transition5 AM - 7 AM
@@ -662,33 +662,33 @@ try {
       currentIntensity = dayNightConfig.intensity.night;
       timeOfDay = "Night";
     }
-    
+
     //Update time of day in display
     timeDisplay.innerHTML += `<div><span style="color: #ffff00;">Period:</span> ${timeOfDay}</div>`;
-    
+
     //colors and lighting
     if (currentScene === 'main') {
       //sky color
       skyMat.color.setHex(currentColors.sky);
-      
+
       //sun/moon color and pos
       sunMat.color.setHex(currentColors.sun);
       const sunPos = getSunPosition(hours);
       sun.position.set(sunPos.x, sunPos.y, sunPos.z);
-      
+
       //  lighting
       ambLight.color.setHex(currentColors.ambient);
       ambLight.intensity = currentIntensity.ambient;
-      
+
       dirLight.color.setHex(currentColors.directional);
       dirLight.intensity = currentIntensity.directional;
-      
+
       //  sun material opacity  intensity
       sunMat.opacity = currentIntensity.sun;
-      
+
       //fog
       scene.fog.color.setHex(currentColors.fog);
-      
+
       // Pos directional light follow sun
       dirLight.position.set(sunPos.x * 0.5, sunPos.y + 5, sunPos.z * 0.5);
     }
@@ -737,13 +737,13 @@ mirror.add(mirrorBack);
   try {
     worldBuilder = new WorldBuilder(scene, camera, renderer);
     console.log(' World Builder system initialized');
-    
+
     // Start auto-loading
     const requiredModels = await worldBuilder.autoLoadWorld();
     if (requiredModels.length > 0) {
       console.log('Will auto-load world when models are ready:', requiredModels);
     }
-    
+
   } catch (error) {
     console.error('failed to initialize World Builder:', error);
   }
@@ -762,7 +762,7 @@ let modelLoader;
 try {
   modelLoader = new ModelLoader(scene, loadingManager, worldBuilder);
   modelLoader.setTotalModelsCount(totalModelsToLoad);
-  
+
   // Load all models
   console.log('Starting to load all models...');
   modelLoader.loadAllModels(scene, galleryScene, inventorySystem)
@@ -774,7 +774,7 @@ try {
       console.error('Error loading models:', error);
       updateLoadingProgress(totalModelsToLoad, totalModelsToLoad);
     });
-    
+
   console.log('ModelLoader initialized');
 } catch (error) {
   console.error('Failed to initialize ModelLoader:', error);
@@ -792,7 +792,7 @@ try {
 
 
 // 3d galleyy scene=======================================
-  
+
   //sky
   const gallerySky = new THREE.Mesh(skyGeo.clone(), new THREE.MeshBasicMaterial({ color:0x2a1810, side:THREE.BackSide }));
   galleryScene.add(gallerySky);
@@ -800,7 +800,7 @@ try {
   // lighting
   const galleryAmbLight = new THREE.AmbientLight(0xffffff, 0.3);
   galleryScene.add(galleryAmbLight);
-  
+
   const gallerySpotLight = new THREE.SpotLight(0xffffff, 1, 30, Math.PI/6, 0.1, 2);
   gallerySpotLight.position.set(0, 15, 0);
   gallerySpotLight.target.position.set(0, 0, 0);
@@ -828,18 +828,18 @@ try {
    //gallery walls w shared mat
   const wallMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
   const wallGeometry = new THREE.PlaneGeometry(30, 8);
-  
+
   // Back wall
   const backWall = new THREE.Mesh(wallGeometry, wallMaterial);
   backWall.position.set(0, 4, -15);
   galleryScene.add(backWall);
-  
+
   ///Side walls
   const leftWall = new THREE.Mesh(wallGeometry, wallMaterial);
   leftWall.rotation.y = Math.PI/2;
   leftWall.position.set(-15, 4, 0);
   galleryScene.add(leftWall);
-  
+
   const rightWall = new THREE.Mesh(wallGeometry, wallMaterial);
   rightWall.rotation.y = -Math.PI/2;
   rightWall.position.set(15, 4, 0);
@@ -869,13 +869,13 @@ try {
   artPieces.forEach((art, index) => {
     // frame
     const frame = new THREE.Mesh(frameGeometry, frameMaterial);
-    
+
     //canvas preview of 3D model 
     const canvas = document.createElement('canvas');
     canvas.width = 128; //  256
     canvas.height = 96;  //  192
     const ctx = canvas.getContext('2d');
-    
+
     //simple preview representation
     ctx.fillStyle = `#${art.color.toString(16).padStart(6, '0')}`;
     ctx.fillRect(25, 25, 78, 46);
@@ -884,20 +884,20 @@ try {
     ctx.textAlign = 'center';
     ctx.fillText(art.name, 64, 80);
     ctx.fillText('E to View', 64, 90);
-    
+
     const texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     texture.generateMipmaps = false; //ddisable mipmaps
     texture.minFilter = THREE.LinearFilter;
-    
+
     const previewMaterial = new THREE.MeshPhongMaterial({ map: texture });
     const preview = new THREE.Mesh(previewGeometry, previewMaterial);
-    
+
     //frames on walls
     frame.position.copy(new THREE.Vector3(...art.pos));
     preview.position.copy(frame.position);
     preview.position.z += 0.02; // Slightly in fron
-    
+
     //rotations based on wall
     if (art.pos[2] < 0) { // Bac
       frame.rotation.y = 0;
@@ -909,11 +909,11 @@ try {
       frame.rotation.y = -Math.PI/2;
       preview.rotation.y = -Math.PI/2;
     }
-    
+
     galleryScene.add(frame);
     galleryScene.add(preview);
     galleryFrames.push(frame);
-    
+
     //invisible interactive area
     const interactiveArea = new THREE.Mesh(interactiveGeometry, interactiveMaterial);
     interactiveArea.position.copy(preview.position);
@@ -924,53 +924,53 @@ try {
   });
 
 // modell viewer =======================================
-  
+
   const sharedGeometries = {
     cube: new THREE.BoxGeometry(4, 4, 4),
     sphere: new THREE.SphereGeometry(2.5, 24, 24), // Red segments
     cylinder: new THREE.CylinderGeometry(2, 2, 6, 24), // Red segmts
     cone: new THREE.ConeGeometry(2.5, 6, 24) // Red seg
   };
-  
+
   function createModelViewerScene(art, scene) {
     // Dark space environment
     const viewerSky = new THREE.Mesh(skyGeo.clone(), new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.BackSide }));
     scene.add(viewerSky);
-    
+
     //lighting
     const ambLight = new THREE.AmbientLight(0x404040, 0.2);
     scene.add(ambLight);
-    
+
     const spotLight1 = new THREE.SpotLight(0xffffff, 2, 50, Math.PI/4, 0.1, 2);
     spotLight1.position.set(10, 10, 10);
     spotLight1.target.position.set(0, 0, 0);
     spotLight1.shadow.mapSize.setScalar(256); // Red shadow map
     scene.add(spotLight1);
     scene.add(spotLight1.target);
-    
+
     const spotLight2 = new THREE.SpotLight(0x4444ff, 1, 50, Math.PI/4, 0.1, 2);
     spotLight2.position.set(-10, 5, -5);
     spotLight2.target.position.set(0, 0, 0);
     spotLight2.shadow.mapSize.setScalar(256); // shadow
     scene.add(spotLight2);
     scene.add(spotLight2.target);
-    
+
     //shared geometry
     const geometry = sharedGeometries[art.shape];
-    
+
     const material = new THREE.MeshPhongMaterial({ 
       color: art.color, 
       shininess: 100,
       emissive: art.color,
       emissiveIntensity: 0.1
     });
-    
+
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     scene.add(mesh);
-    
+
     //rotation animation
     scene.userData = { rotatingMesh: mesh };
   }
@@ -992,7 +992,7 @@ try {
   characterBody.position.y = 1.1;
   characterGroup.add(characterBody);
 
-  
+
 
   characterGroup.position.set(0, 0, 5);
   scene.add(characterGroup); // Character added to main scene initially
@@ -1034,10 +1034,10 @@ try {
 
 
   //model load============================
-  
+
   //optimized loaders
   const loader = new GLTFLoader(loadingManager);
-  
+
   //DRACO compression support smaller files -> sollte mit church model testen
   const dracoLoader = new DRACOLoader();
   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
@@ -1047,25 +1047,25 @@ try {
 
   //model loading w caching
   const modelCache = new Map();
-  
+
   function loadModelOptimized(url, callback, progressCallback, errorCallback) {
     if (modelCache.has(url)) {
       //Return cached
       callback(modelCache.get(url));
       return;
     }
-    
+
     loader.load(url, 
       function(gltf) {
         //Cache model
         modelCache.set(url, gltf);
-        
+
         //ptimize loaded model
         gltf.scene.traverse((node) => {
           if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
-            
+
             // materials
             if (node.material) {
               node.material.needsUpdate = false;
@@ -1077,7 +1077,7 @@ try {
             }
           }
         });
-        
+
         callback(gltf);
       },
       progressCallback,
@@ -1100,7 +1100,7 @@ try {
   // lighting
   const ambLight = new THREE.AmbientLight(0xffffff, 0.4); 
   scene.add(ambLight);
-  
+
   const dirLight = new THREE.DirectionalLight(0xfff0b1, 0.7); 
   dirLight.position.set(10, 14, 4);
   dirLight.castShadow = true;
@@ -1121,10 +1121,10 @@ try {
     if (document.pointerLockElement && gameStarted && !overlays.isPaperReadingMode()) {
       mouseX = e.movementX || 0;
       mouseY = e.movementY || 0;
-      
+
       targetRotationY -= mouseX * MOUSE_SENSITIVITY;
       currentRotationX -= mouseY * MOUSE_SENSITIVITY;
-      
+
       //Limit vert rotation
       if (spectatorMode) {
         currentRotationX = Math.max(-Math.PI/2, Math.min(Math.PI/2, currentRotationX));
@@ -1149,11 +1149,11 @@ try {
       console.log('Q key pressed - returning to gallery');
     }
   });
-  
+
   window.addEventListener('keyup', (e) => {
     keys[e.key.toLowerCase()] = false;
   });
-  
+
   let velocity = new THREE.Vector3();
   let moveSpeed = 5;
   const sprintSpeed = 10;
@@ -1187,20 +1187,20 @@ try {
     currentScene = 'gallery';
     activeScene = galleryScene;
     spectatorMode = false;
-    
+
     ///Move character to gallery
     scene.remove(characterGroup);
     galleryScene.add(characterGroup);
-    
+
     //Reset character pos
     characterGroup.position.set(0, 0, 10);
-    
+
     updateControlsDisplay();
     console.log('Switched to 3D gallery scene');
   }
 
   function switchToMain() {
-    
+
     currentScene = 'main';
     activeScene = scene;
     spectatorMode = false;
@@ -1210,10 +1210,10 @@ try {
     // character back to main 
     galleryScene.remove(characterGroup);
     scene.add(characterGroup);
-    
+
     // Reset pos
     characterGroup.position.set(0, 0, 5);
-    
+
     updateControlsDisplay();
     console.log('Switched to main scene');
   }
@@ -1222,30 +1222,30 @@ try {
     if (eagleVision) {
     eagleVision.forceDeactivate();
   }
-  
+
     spectatorMode = true;
-    
+
     const sceneMap = {
       0: cubeViewerScene,
       1: sphereViewerScene, 
       2: cylinderViewerScene,
       3: coneViewerScene
     };
-    
+
     currentScene = `model-${artIndex}`;
     activeScene = sceneMap[artIndex];
-    
+
     //spectator mode
     galleryScene.remove(characterGroup);
-    
+
     //Pos cam
     camera.position.set(8, 5, 8);
     camera.lookAt(0, 0, 0);
-    
+
     // Reset cam rot
     targetRotationY = 0;
     currentRotationX = 0;
-    
+
     updateControlsDisplay();
     console.log(`Switched to model viewer for ${artPieces[artIndex].name}`);
   }
@@ -1257,15 +1257,15 @@ try {
     currentScene = 'gallery';
     activeScene = galleryScene;
     spectatorMode = false;
-    
+
     //character back to gallery
     galleryScene.add(characterGroup);
     characterGroup.position.set(0, 0, 10);
-    
+
     // Reset camera rot
     targetRotationY = 0;
     currentRotationX = 0;
-    
+
     updateControlsDisplay();
     console.log('Returned to gallery from model viewer');
   }
@@ -1286,7 +1286,7 @@ function checkPortalView() {
     keyMeshes: [],
     doorMeshes: []
   };
-  
+
   if (currentScene === 'main') {
     //  portal meshes
     const portalModels = modelLoader.getPortalModels();
@@ -1298,7 +1298,7 @@ function checkPortalView() {
         }
       });
     });
-    
+
     //  paper meshes
     if (modelLoader.models.paper) {
       modelLoader.models.paper.traverse((child) => {
@@ -1371,13 +1371,13 @@ function checkPortalView() {
         }
       });
     }
-    
+
     //interactive gallery frames
     allMeshes.portalMeshes.push(...interactiveAreas);
   }
 
   // Check for interactions in priority order
-  
+
   // 1. Check for key interaction
   const keyIntersects = raycaster.intersectObjects(allMeshes.keyMeshes);
 let targetKey = null;
@@ -1531,7 +1531,7 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
 
   for (const intersect of portalIntersects) {
     const distance = intersect.distance;
-    
+
     if (distance <= portalDetectionDistance && distance < portalDistance) {
       if (intersect.object.userData.type === 'gallery-frame') {
         targetPortal = intersect.object;
@@ -1562,29 +1562,29 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
   // collision detection main scene
   function checkCollision(currentPosition, newPosition) {
     if (currentScene !== 'main') return false; //no collisions in gallery spectator 
-    
+
     const characterRadius = 0.4;
-    
+
     for (const collisionBox of collisionBoxes) {
       const boxGeometry = collisionBox.geometry;
       const boxPosition = collisionBox.position;
-      
+
       if (boxGeometry.type === 'CylinderGeometry') {
         // Cylinder 
         const cylinderRadius = boxGeometry.parameters.radiusTop;
         const cylinderHeight = boxGeometry.parameters.height;
         const cylinderTop = boxPosition.y + cylinderHeight/2;
         const cylinderBottom = boxPosition.y - cylinderHeight/2;
-        
+
         //horizontal distance for both current n new positions
         const currentDx = currentPosition.x - boxPosition.x;
         const currentDz = currentPosition.z - boxPosition.z;
         const currentDistance = Math.sqrt(currentDx * currentDx + currentDz * currentDz);
-        
+
         const newDx = newPosition.x - boxPosition.x;
         const newDz = newPosition.z - boxPosition.z;
         const newDistance = Math.sqrt(newDx * newDx + newDz * newDz);
-        
+
         if (newDistance < (cylinderRadius + characterRadius) &&
             newDistance <= currentDistance &&
             newPosition.y < cylinderTop && 
@@ -1596,18 +1596,18 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
         const boxWidth = boxGeometry.parameters.width;
         const boxHeight = boxGeometry.parameters.height;
         const boxDepth = boxGeometry.parameters.depth;
-        
+
         const boxMinX = boxPosition.x - boxWidth / 2;
         const boxMaxX = boxPosition.x + boxWidth / 2;
         const boxMinZ = boxPosition.z - boxDepth / 2;
         const boxMaxZ = boxPosition.z + boxDepth / 2;
         const boxMinY = boxPosition.y - boxHeight / 2;
         const boxMaxY = boxPosition.y + boxHeight / 2;
-        
+
         const wouldCollideX = newPosition.x + characterRadius > boxMinX && newPosition.x - characterRadius < boxMaxX;
         const wouldCollideZ = newPosition.z + characterRadius > boxMinZ && newPosition.z - characterRadius < boxMaxZ;
         const wouldCollideY = newPosition.y < boxMaxY && newPosition.y + 2 > boxMinY;
-        
+
         const currentDistanceToCenter = Math.sqrt(
           Math.pow(currentPosition.x - boxPosition.x, 2) + 
           Math.pow(currentPosition.z - boxPosition.z, 2)
@@ -1616,7 +1616,7 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
           Math.pow(newPosition.x - boxPosition.x, 2) + 
           Math.pow(newPosition.z - boxPosition.z, 2)
         );
-        
+
         if (wouldCollideX && wouldCollideZ && wouldCollideY &&
             newDistanceToCenter <= currentDistanceToCenter) {
           return true;
@@ -1629,22 +1629,22 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
   //get ground level at a specific position
   function getGroundLevel(position) {
     if (currentScene !== 'main') return 0; //Gallery flat ground
-    
+
     let groundLevel = 0;
-    
+
     for (const collisionBox of collisionBoxes) {
       const boxGeometry = collisionBox.geometry;
       const boxPosition = collisionBox.position;
-      
+
       if (boxGeometry.type === 'CylinderGeometry') {
         const cylinderRadius = boxGeometry.parameters.radiusTop;
         const cylinderHeight = boxGeometry.parameters.height;
         const cylinderTop = boxPosition.y + cylinderHeight/2;
-        
+
         const dx = position.x - boxPosition.x;
         const dz = position.z - boxPosition.z;
         const horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-        
+
         if (horizontalDistance <= cylinderRadius && cylinderTop > groundLevel) {
           groundLevel = cylinderTop;
         }
@@ -1653,12 +1653,12 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
         const boxDepth = boxGeometry.parameters.depth;
         const boxHeight = boxGeometry.parameters.height;
         const boxTop = boxPosition.y + boxHeight/2;
-        
+
         const boxMinX = boxPosition.x - boxWidth / 2;
         const boxMaxX = boxPosition.x + boxWidth / 2;
         const boxMinZ = boxPosition.z - boxDepth / 2;
         const boxMaxZ = boxPosition.z + boxDepth / 2;
-        
+
         if (position.x >= boxMinX && position.x <= boxMaxX &&
             position.z >= boxMinZ && position.z <= boxMaxZ &&
             boxTop > groundLevel) {
@@ -1666,54 +1666,54 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
         }
       }
     }
-    
+
     return groundLevel;
   }
 
   function moveCharacter(dt) {
     if (!gameStarted || overlays.isPaperReadingMode() || (inventorySystem && inventorySystem.isOpen)) return;
-  
+
     if (spectatorMode) {
       // Spect mode movement
       const spectatorMoveSpeed = spectatorSpeed;
-      
+
       //movement directs
       const forward = new THREE.Vector3(0, 0, -1);
       forward.applyQuaternion(camera.quaternion);
-      
+
       const right = new THREE.Vector3(1, 0, 0);
       right.applyQuaternion(camera.quaternion);
-      
+
       const up = new THREE.Vector3(0, 1, 0);
-      
+
       let movement = new THREE.Vector3();
-      
+
       if (keys['w']) movement.add(forward.multiplyScalar(spectatorMoveSpeed * dt));
       if (keys['s']) movement.add(forward.multiplyScalar(-spectatorMoveSpeed * dt));
       if (keys['a']) movement.add(right.multiplyScalar(-spectatorMoveSpeed * dt));
       if (keys['d']) movement.add(right.multiplyScalar(spectatorMoveSpeed * dt));
       if (keys[' ']) movement.add(up.multiplyScalar(spectatorMoveSpeed * dt));
       if (keys['shift']) movement.add(up.multiplyScalar(-spectatorMoveSpeed * dt));
-      
+
       camera.position.add(movement);
-      
+
       return;
     }
-    
+
     //Normal character movement
     const forward = new THREE.Vector3(0, 0, -1);
     forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), targetRotationY);
-    
+
     const right = new THREE.Vector3(1, 0, 0);
     right.applyAxisAngle(new THREE.Vector3(0, 1, 0), targetRotationY);
-    
+
     velocity.x = 0;
     velocity.z = 0;
-    
+
     moveSpeed = keys['shift'] ? sprintSpeed : normalSpeed;
-    
+
     let desiredVelocity = new THREE.Vector3();
-    
+
     if (keys['w'] || keys['arrowup']) {
       desiredVelocity.x += forward.x * moveSpeed * dt;
       desiredVelocity.z += forward.z * moveSpeed * dt;
@@ -1730,27 +1730,27 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
       desiredVelocity.x += right.x * moveSpeed * dt;
       desiredVelocity.z += right.z * moveSpeed * dt;
     }
-    
+
     // Xdirection
     const testPositionX = characterGroup.position.clone();
     testPositionX.x += desiredVelocity.x;
     if (!checkCollision(characterGroup.position, testPositionX)) {
       characterGroup.position.x = testPositionX.x;
     }
-    
+
     // Zdirection
     const testPositionZ = characterGroup.position.clone();
     testPositionZ.z += desiredVelocity.z;
     if (!checkCollision(characterGroup.position, testPositionZ)) {
       characterGroup.position.z = testPositionZ.z;
     }
-    
+
     // Jump
     if (keys[' '] && !isJumping) {
       isJumping = true;
       jumpVelocity = jumpForce;
     }
-    
+
  if (keys['e']) {
   // Replace the key interaction code in main.js with this:
 if (window.currentKeyInView && inventorySystem) {
@@ -1758,16 +1758,16 @@ if (window.currentKeyInView && inventorySystem) {
   if (inventorySystem.addItem(keyData)) {
     // Remove the key from scene
     scene.remove(window.currentKeyInView);
-    
+
     // Hide key info window immediately
     if (infoWindows && infoWindows.windows.key) {
       infoWindows.windows.key.style.display = 'none';
     }
-    
+
     // Clear reference to prevent phantom detection
     window.currentKeyInView = null;
     document.querySelectorAll('#key-info-temp').forEach(el => el.remove());
-    
+
     // The particles will be auto-removed in the next update cycle
   }
 }
@@ -1804,30 +1804,30 @@ if (window.currentKeyInView && inventorySystem) {
         }
       }
     }
-    
+
     //gravity update vert pos
     if (isJumping || characterGroup.position.y > 0) {
       jumpVelocity -= gravity * dt;
       characterGroup.position.y += jumpVelocity * dt;
     }
-    
+
     const currentGroundLevel = getGroundLevel(characterGroup.position);
-    
+
     if (characterGroup.position.y <= currentGroundLevel) {
       characterGroup.position.y = currentGroundLevel;
       isJumping = false;
       jumpVelocity = 0;
     }
-    
+
     if (!isJumping && characterGroup.position.y > currentGroundLevel) {
       isJumping = true;
       jumpVelocity = 0;
     }
-    
+
     //Clamp pos to boundaries
     characterGroup.position.x = Math.max(Math.min(characterGroup.position.x, 23), -23);
     characterGroup.position.z = Math.max(Math.min(characterGroup.position.z, 23), -18);
-    
+
     characterGroup.rotation.y = targetRotationY;
   }
 
@@ -1870,7 +1870,7 @@ if (window.currentKeyInView && inventorySystem) {
     if (e.key === 'Escape' && gameStarted && document.pointerLockElement && !overlays.isPaperReadingMode()) {
       document.exitPointerLock();
     }
-    
+
     // Only allow Enter/Space to start if models are loaded
     if(document.getElementById('overlay-home').classList.contains('visible') && (e.key==='Enter'||e.key===' ') && allModelsLoaded) {
       closeOverlay('home');
@@ -1878,38 +1878,36 @@ if (window.currentKeyInView && inventorySystem) {
   });
 
   let lastTime = performance.now();
-  
-function animate() {
-  try {
-    let now = performance.now();
-    let dt = (now - lastTime) / 1000;
-    lastTime = now;
 
-    if (eagleVision && typeof eagleVision.update === 'function') {
-      eagleVision.update();
-    }
-    
-    updateUIVisibility();
-    updateDayNightCycle();
-    modelLoader.update(dt);
-    
-    if (gameStarted && !document.getElementById('overlay-home')?.classList?.contains('visible') && !overlays.isPaperReadingMode()) {
-      moveCharacter(dt);
-      checkPortalView();
-    }
-    
-    if (activeScene.userData && activeScene.userData.rotatingMesh) {
-      activeScene.userData.rotatingMesh.rotation.y += dt * 0.5;
-    }
-    
-    updateCamera();
-    renderer.render(activeScene, camera);
-  } catch (error) {
-    console.error('Error in animation loop:', error);
+  function animate() {
+  let now = performance.now(), dt = (now-lastTime)/1000;
+  lastTime = now;
+  if (eagleVision) {
+  eagleVision.update();
+}
+  updateUIVisibility();
+  updateDayNightCycle();
+
+  modelLoader.update(dt);
+
+  if(gameStarted && !document.getElementById('overlay-home').classList.contains('visible') && !overlays.isPaperReadingMode()) {
+    moveCharacter(dt);
+    checkPortalView();
   }
-  
+
+  // Rotate models in viewer
+  if (activeScene.userData && activeScene.userData.rotatingMesh) {
+    activeScene.userData.rotatingMesh.rotation.y += dt * 0.5;
+  }
+
+  updateCamera();
+  renderer.render(activeScene, camera);
   requestAnimationFrame(animate);
-} }catch (error) {  // <-- ADD THIS CATCH BLOCK HERE
+}
+
+  animate();
+
+} catch (error) {
   console.error('Fatal error in initialization:', error);
   document.body.innerHTML = `
     <div style="padding:20px;color:white;background:rgba(0,0,0,0.8)">
@@ -1918,7 +1916,7 @@ function animate() {
       <p>console for more details.</p>
     </div>
   `;
-}  
+}
 
 //Debug
 window.debugWorldBuilder = function() {
@@ -1935,7 +1933,7 @@ class StaticErrorReporter {
     this.errors = JSON.parse(localStorage.getItem('portfolio_errors') || '[]');
     this.setupHandlers();
   }
-  
+
   setupHandlers() {
     window.addEventListener('error', (event) => {
       this.reportError('javascript_error', {
@@ -1946,7 +1944,7 @@ class StaticErrorReporter {
         stack: event.error?.stack
       });
     });
-    
+
     window.addEventListener('unhandledrejection', (event) => {
       this.reportError('promise_rejection', {
         reason: event.reason?.toString(),
@@ -1954,7 +1952,7 @@ class StaticErrorReporter {
       });
     });
   }
-  
+
   reportError(type, details) {
     const error = {
       timestamp: new Date().toISOString(),
@@ -1964,27 +1962,27 @@ class StaticErrorReporter {
       url: window.location.href,
       currentScene: window.currentScene || 'unknown'
     };
-    
+
     this.errors.push(error);
     console.error('Portfolio Error:', error);
-    
+
     //Keep last 100 errors
     if (this.errors.length > 100) {
       this.errors = this.errors.slice(-100);
     }
-    
+
     localStorage.setItem('portfolio_errors', JSON.stringify(this.errors));
-    
+
     // msg
     this.showErrorToUser(type, details);
   }
-  
+
   showErrorToUser(type, details) {
     if (type === 'model_load_failed') {
       console.warn('Some 3D models failed to load. Experience may be limited.');
     }
   }
-  
+
   //Export debug
   exportErrors() {
     const blob = new Blob([JSON.stringify(this.errors, null, 2)], 
@@ -2017,4 +2015,3 @@ window.onOverlayClose = function() {
     }
   }
 };
-
