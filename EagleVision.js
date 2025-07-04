@@ -300,5 +300,4 @@ class EagleVision {
     this.originalMaterials.clear();
   }
 }
-
 export { EagleVision };
