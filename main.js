@@ -7,7 +7,7 @@ import { ModelLoader } from './modelLoader.js';
 import { InfoWindows } from './infoWindows.js';
 import { Overlays } from './overlays.js';
 import { portfolioAnalytics } from './analytics.js';
-import { EagleVision } from './EagleVision.js';
+import { EagleVision } from '/EagleVision.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 //Init core systems
 const infoWindows = new InfoWindows(portfolioAnalytics);
@@ -1909,7 +1909,16 @@ function animate() {
   }
   
   requestAnimationFrame(animate);
-}
+} }catch (error) {  // <-- ADD THIS CATCH BLOCK HERE
+  console.error('Fatal error in initialization:', error);
+  document.body.innerHTML = `
+    <div style="padding:20px;color:white;background:rgba(0,0,0,0.8)">
+      <h2>Error Loading Scene</h2>
+      <p>${error.message}</p>
+      <p>console for more details.</p>
+    </div>
+  `;
+}  
 
 //Debug
 window.debugWorldBuilder = function() {
@@ -2008,3 +2017,4 @@ window.onOverlayClose = function() {
     }
   }
 };
+
