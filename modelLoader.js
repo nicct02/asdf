@@ -60,32 +60,47 @@ class ModelLoader {
       callback(this.modelCache.get(url));
       return;
     }
+    const handleError = (error) => {
+      console.warn(`Failed to load model ${url}:`, error);
+      if (errorCallback) {
+        errorCallback(error);
+      }
+      // Update loading progress even if model fails
+      this.loadedModels++;
+      if (this.loadedModels >= this.totalModelsToLoad) {
+        this.onAllModelsLoaded();
+      }
+    };
     
     this.loader.load(url, 
       (gltf) => {
-        // Cache
-        this.modelCache.set(url, gltf);
-        
-        //Optimize
-        gltf.scene.traverse((node) => {
-          if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-            
-            if (node.material) {
-              node.material.needsUpdate = false;
-              if (node.material.map) {
-                node.material.map.generateMipmaps = false;
-                node.material.map.minFilter = THREE.LinearFilter;
+        try {
+          // Cache model
+          this.modelCache.set(url, gltf);
+          
+          // Optimize loaded model
+          gltf.scene.traverse((node) => {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+              
+              if (node.material) {
+                node.material.needsUpdate = false;
+                if (node.material.map) {
+                  node.material.map.generateMipmaps = false;
+                  node.material.map.minFilter = THREE.LinearFilter;
+                }
               }
             }
-          }
-        });
+          });
         
         callback(gltf);
+        } catch (error) {
+          handleError(error);
+        }
       },
       progressCallback,
-      errorCallback
+      handleError
     );
   }
   
@@ -96,7 +111,11 @@ class ModelLoader {
       progressCallback(this.loadedModels, this.totalModelsToLoad);
     }
   }
-  
+  onAllModelsLoaded() {
+    console.log('All models processed');
+    // You can add any cleanup or initialization code here
+  }
+}
   loadChurchModel(inventorySystem) {
     return new Promise((resolve) => {
       this.loadModelOptimized(
