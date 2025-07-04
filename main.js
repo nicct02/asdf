@@ -7,48 +7,9 @@ import { ModelLoader } from './modelLoader.js';
 import { InfoWindows } from './infoWindows.js';
 import { Overlays } from './overlays.js';
 import { portfolioAnalytics } from './analytics.js';
+import { EagleVision } from './EagleVision.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 //Init core systems
-import { EagleVision } from '/asdf/EagleVision.js';
-
-
-
-let keys = {};
-let eagleVisionOverlayActive = false;
-let eagleVisionOverlayTimeout = null;
-
-const eagleVisionWindow = document.createElement('div');
-eagleVisionWindow.id = 'eagle-vision-window';
-eagleVisionWindow.style.cssText = `
-  position: fixed;
-  top: 50%; left: 50%;
-  width: 45vw; height: 45vh;
-  transform: translate(-50%, -50%);
-  border: 4px solid #fff;
-  border-radius: 32px;
-  box-shadow: 0 0 60px #00eaff99, 0 0 0 3vw #000b inset;
-  display: none;
-  z-index: 9999;
-  pointer-events: none;
-  overflow: hidden;
-  background: #111;
-`;
-
-const eagleVisionCanvas = document.createElement('canvas');
-eagleVisionCanvas.width = 900;
-eagleVisionCanvas.height = 600;
-eagleVisionCanvas.style.width = '100%';
-eagleVisionCanvas.style.height = '100%';
-eagleVisionWindow.appendChild(eagleVisionCanvas);
-document.body.appendChild(eagleVisionWindow);
-
-
-
-
-
-
-
-
 const infoWindows = new InfoWindows(portfolioAnalytics);
 const overlays = new Overlays(portfolioAnalytics);
 
@@ -56,6 +17,7 @@ let gameStarted = false;
 let currentScene = 'main';
 let spectatorMode = false;
 let allModelsLoaded = false;
+let eagleVision = null;
 
 const loadingManager = new THREE.LoadingManager();
 let totalModelsToLoad = 11; // portal.glb, church.glb, grave.glb, altar.glb, paper.glb, crow.glb, desk.glb, book1.glb, book2.glb, scroll.glb, desk2.glb
@@ -117,15 +79,6 @@ function hideAllOverlays() {
     overlay.style.display = 'none';
   });
 }
-
-
-
-
-
-
-
- 
-
 
 // Home overlay after loading complete
 function showHomeOverlay() {
@@ -829,36 +782,12 @@ try {
 
 
 
-
-
-
-
-
-let eagleVision = null;
 try {
   eagleVision = new EagleVision(scene, galleryScene, renderer, modelLoader, portfolioAnalytics);
   console.log('Eagle Vision system initialized');
 } catch (error) {
   console.error('Failed to initialize Eagle Vision:', error);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1210,33 +1139,20 @@ try {
   window.addEventListener('keydown', (e) => {
   const key = e.key.toLowerCase();
   keys[key] = true;
-
-  if (
-    key === 'v' &&
-    !eagleVisionOverlayActive &&
-    gameStarted &&
-    !overlays.isPaperReadingMode() &&
-    !(inventorySystem && inventorySystem.isOpen) &&
-    !spectatorMode
-  ) {
-    eagleVisionOverlayActive = true;
-    eagleVisionWindow.style.display = 'block';
-    clearTimeout(eagleVisionOverlayTimeout);
-    eagleVisionOverlayTimeout = setTimeout(() => {
-      eagleVisionOverlayActive = false;
-      eagleVisionWindow.style.display = 'none';
-    }, 2000);
+  if (key === 'v' && !eagleVision?.isActive && gameStarted && !overlays.isPaperReadingMode() && 
+    !(inventorySystem && inventorySystem.isOpen) && !spectatorMode) {
+    eagleVision?.activate(currentScene);
   }
-
-  if (key === 'q' && spectatorMode && currentScene.startsWith('model-')) {
-    returnToGallery();
-    console.log('Q key pressed - returning to gallery');
-  }
-});
-
-window.addEventListener('keyup', (e) => {
-  keys[e.key.toLowerCase()] = false;
-});
+    //Q key press immediately for spectator mode return
+    if (key === 'q' && spectatorMode && currentScene.startsWith('model-')) {
+      returnToGallery();
+      console.log('Q key pressed - returning to gallery');
+    }
+  });
+  
+  window.addEventListener('keyup', (e) => {
+    keys[e.key.toLowerCase()] = false;
+  });
   
   let velocity = new THREE.Vector3();
   let moveSpeed = 5;
@@ -1265,7 +1181,9 @@ window.addEventListener('keyup', (e) => {
 
   // Scene switching
   function switchToGallery() {
-      
+      if (eagleVision) {
+    eagleVision.forceDeactivate();
+  }
     currentScene = 'gallery';
     activeScene = galleryScene;
     spectatorMode = false;
@@ -1286,7 +1204,9 @@ window.addEventListener('keyup', (e) => {
     currentScene = 'main';
     activeScene = scene;
     spectatorMode = false;
-    
+    if (eagleVision) {
+    eagleVision.forceDeactivate();
+  }
     // character back to main 
     galleryScene.remove(characterGroup);
     scene.add(characterGroup);
@@ -1299,7 +1219,9 @@ window.addEventListener('keyup', (e) => {
   }
 
   function switchToModelViewer(artIndex) {
-    
+    if (eagleVision) {
+    eagleVision.forceDeactivate();
+  }
   
     spectatorMode = true;
     
@@ -1329,7 +1251,9 @@ window.addEventListener('keyup', (e) => {
   }
 
   function returnToGallery() {
-    
+    if (eagleVision) {
+    eagleVision.forceDeactivate();
+  }
     currentScene = 'gallery';
     activeScene = galleryScene;
     spectatorMode = false;
@@ -1955,20 +1879,12 @@ if (window.currentKeyInView && inventorySystem) {
 
   let lastTime = performance.now();
   
-  
   function animate() {
-  let now = performance.now(), dt = (now - lastTime) / 1000;
+  let now = performance.now(), dt = (now-lastTime)/1000;
   lastTime = now;
-
-  // Eagle Vision overlay render
-  if (eagleVisionOverlayActive) {
-    eagleVision.renderToCanvas(
-      eagleVisionCanvas,
-      currentScene === 'main' ? scene : galleryScene,
-      camera
-    );
-  }
-  
+  if (eagleVision) {
+  eagleVision.update();
+}
   updateUIVisibility();
   updateDayNightCycle();
   
@@ -1988,6 +1904,7 @@ if (window.currentKeyInView && inventorySystem) {
   renderer.render(activeScene, camera);
   requestAnimationFrame(animate);
 }
+
   animate();
 
 } catch (error) {
