@@ -1900,42 +1900,45 @@ if (window.currentKeyInView && inventorySystem) {
 
   let lastTime = performance.now();
   
-  function animate() {
+function animate() {
   try {
     let now = performance.now();
     let dt = (now - lastTime) / 1000;
     lastTime = now;
-    
-    updateUIVisibility();
-    updateDayNightCycle();
-    
+
+    // Safely update eagle vision if it exists
     if (eagleVision && typeof eagleVision.update === 'function') {
       eagleVision.update();
     }
+
+    updateUIVisibility();
+    updateDayNightCycle();
     
     modelLoader.update(dt);
     
-    if (gameStarted && !document.getElementById('overlay-home')?.classList.contains('visible') && !overlays.isPaperReadingMode()) {
+    if (gameStarted && 
+        document.getElementById('overlay-home')?.classList?.contains('visible') === false && 
+        !overlays.isPaperReadingMode()) {
       moveCharacter(dt);
       checkPortalView();
     }
     
     // Rotate models in viewer
-    if (activeScene.userData?.rotatingMesh) {
+    if (activeScene.userData && activeScene.userData.rotatingMesh) {
       activeScene.userData.rotatingMesh.rotation.y += dt * 0.5;
     }
     
     updateCamera();
     renderer.render(activeScene, camera);
-    
+
   } catch (error) {
     console.error('Error in animation loop:', error);
-    // Don't stop the animation loop on error
+    // Continue animation even if there's an error
   }
   
   requestAnimationFrame(animate);
 }
-
+    
 //Debug
 window.debugWorldBuilder = function() {
   if (worldBuilder) {
