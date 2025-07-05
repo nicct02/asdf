@@ -273,7 +273,7 @@ try {
       <div><span style="color: #ffff00;">ESC</span> - Menu</div>
       <div><span style="color: #ffff00;">E</span> - interact with stuff</div>
       <div><span style="color: #ffff00;">I</span> - Inventory</div>
-      <div><span style="color: #ffff00;">V</span> - Eagle Vision</div>
+      <div><span style="color: #ffff00;">V</span> - Detect Interactables</div>
     `;
   }
 }
@@ -511,7 +511,7 @@ try {
   timeDisplay.id = 'time-display';
   timeDisplay.style.cssText = `
     position: fixed;
-    top: 170px;
+    top: 190px;
     right: 20px;
     background: rgba(0, 0, 0, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -729,6 +729,22 @@ const mirrorBack = new THREE.Mesh(mirrorGeometry, mirrorBackMaterial);
 mirrorBack.position.z = -0.001;
 mirrorBack.rotation.y = Math.PI;
 mirror.add(mirrorBack);
+
+
+// Add this function after the other utility functions
+function isObjectInViewport(object, camera) {
+  // Quick frustum culling
+  if (!camera.frustum) {
+    camera.frustum = new THREE.Frustum();
+    camera.projectionScreenMatrix = new THREE.Matrix4();
+  }
+  
+  camera.projectionScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+  camera.frustum.setFromProjectionMatrix(camera.projectionScreenMatrix);
+  
+  const boundingBox = new THREE.Box3().setFromObject(object);
+  return camera.frustum.intersectsBox(boundingBox);
+}
 
 
 
@@ -992,11 +1008,46 @@ try {
   characterBody.receiveShadow = true;
   characterBody.position.y = 1.1;
   characterGroup.add(characterBody);
-
-
-
   characterGroup.position.set(0, 0, 5);
   scene.add(characterGroup); // Character added to main scene initially
+
+
+
+function updateLOD() {
+  if (!gameStarted || !characterGroup) return;
+  
+  const characterPos = characterGroup.position;
+  
+  // Define LOD distances
+  const HIGH_DETAIL_DISTANCE = 15;
+  const MEDIUM_DETAIL_DISTANCE = 30;
+  
+  // Check all models and adjust their detail level
+  Object.values(modelLoader.models).forEach(model => {
+    if (!model || !model.position) return;
+    
+    const distance = characterPos.distanceTo(model.position);
+    
+    // Adjust shadow casting based on distance
+    model.traverse(child => {
+      if (child.isMesh) {
+        if (distance > MEDIUM_DETAIL_DISTANCE) {
+          child.castShadow = false;
+          child.receiveShadow = false;
+        } else if (distance > HIGH_DETAIL_DISTANCE) {
+          child.castShadow = false;
+          child.receiveShadow = true;
+        } else {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      }
+    });
+  });
+}
+
+
+
 
   //Collision detection
   const collisionBoxes = [];
@@ -1754,6 +1805,7 @@ if (modelLoader.models.key && !modelLoader.models.key.parent) {
 
  if (keys['e']) {
   // Replace the key interaction code in main.js with this:
+// Replace the key interaction code with this:
 if (window.currentKeyInView && inventorySystem) {
   const keyData = window.currentKeyInView.userData.itemData;
   if (inventorySystem.addItem(keyData)) {
@@ -1769,7 +1821,7 @@ if (window.currentKeyInView && inventorySystem) {
     window.currentKeyInView = null;
     document.querySelectorAll('#key-info-temp').forEach(el => el.remove());
 
-    // The particles will be auto-removed in the next update cycle
+    // NO MORE PARTICLE CLEANUP NEEDED
   }
 }
   else if (window.currentDoorInView && inventorySystem) {
@@ -1883,11 +1935,15 @@ if (window.currentKeyInView && inventorySystem) {
   function animate() {
   let now = performance.now(), dt = (now-lastTime)/1000;
   lastTime = now;
+  
   if (eagleVision) {
-  eagleVision.update();
-}
+    eagleVision.update();
+  }
+  
   updateUIVisibility();
   updateDayNightCycle();
+  updateLOD(); // Add this line
+  
 
   modelLoader.update(dt);
 
