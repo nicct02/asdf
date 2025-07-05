@@ -7,7 +7,7 @@ import { ModelLoader } from './modelLoader.js';
 import { InfoWindows } from './infoWindows.js';
 import { Overlays } from './overlays.js';
 import { portfolioAnalytics } from './analytics.js';
-import { EagleVision } from './EagleVision.js';
+import { EagleVision } from '/EagleVision.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 //Init core systems
 const infoWindows = new InfoWindows(portfolioAnalytics);
@@ -782,8 +782,9 @@ try {
 
 
 
+// In main.js, find where EagleVision is initialized and update it:
 try {
-  eagleVision = new EagleVision(scene, galleryScene, renderer, modelLoader, portfolioAnalytics);
+  eagleVision = new EagleVision(scene, galleryScene, renderer, modelLoader, portfolioAnalytics, camera);
   console.log('Eagle Vision system initialized');
 } catch (error) {
   console.error('Failed to initialize Eagle Vision:', error);
@@ -1269,7 +1270,7 @@ try {
     updateControlsDisplay();
     console.log('Returned to gallery from model viewer');
   }
-
+window.camera = camera;
 function checkPortalView() {
   if (!gameStarted || overlays.isPaperReadingMode() || (inventorySystem && inventorySystem.isOpen)) return;
   const cameraDirection = new THREE.Vector3(0, 0, -1);
