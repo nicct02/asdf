@@ -20,7 +20,7 @@ let allModelsLoaded = false;
 let eagleVision = null;
 
 const loadingManager = new THREE.LoadingManager();
-let totalModelsToLoad = 11; // portal.glb, church.glb, grave.glb, altar.glb, paper.glb, crow.glb, desk.glb, book1.glb, book2.glb, scroll.glb, desk2.glb
+let totalModelsToLoad = 13; // portal.glb, church.glb, grave.glb, altar.glb, paper.glb, crow.glb, desk.glb, book1.glb, book2.glb, scroll.glb, desk2.glb
 let loadedModels = 0;
 
 let crowMixer = null;
