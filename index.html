@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>-_-</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css" />
+ 
+  <script async src="https://unpkg.com/es-module-shims/dist/es-module-shims.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <div id="three-canvas"></div>
+
+  <div id="overlay-home" class="overlay visible">
+    <h1>imagine a more creative text here lol</h1>
+    <p>
+      <kbd>WASD oder Arrows</kbd> to move.<br>
+      controls in topRight corrner.<br>
+      <br> <br>
+      <br>Sidenote & Fix Stuff: <br>
+      <br>Day/night cycle sped up<br>
+      <br>pink/blue colision boxes um .glb weil walkign through rn <br>
+      <br>Ctrl+B Buil mode buggy controls <br>
+      <br>remap CtrlB Scale mode weil goofy conflict with moveS+mouseUp after placed model lol <br>
+      <br>overall ugly ass color choice und models/aussehen & actual showcase stuff<br>
+      <br>Gallery Frames rotation <br>
+      <br>Let Crow do its thing<br>
+      <br>initial lag wenn in gallery oder main sc..<br>
+
+      <br> <br>
+      <br>yes, the random desks are intentional, trust me<br>
+    </p>
+    <button onclick="closeOverlay('home')">ok</button>
+  </div>
+  <div id="overlay-2d" class="overlay">
+    <button class="close" onclick="closeOverlay('2d')">&times;</button>
+    <h2>2D Art</h2>
+  </div>
+  <div id="overlay-3d" class="overlay">
+    <button class="close" onclick="closeOverlay('3d')">&times;</button>
+    <h2>3D Church Model</h2>
+  </div>
+  <div id="overlay-grave" class="overlay">
+    <button class="close" onclick="closeOverlay('grave')">&times;</button>
+    <h2>3D Grave Model</h2>
+  </div>
+  <div id="overlay-contact" class="overlay">
+    <button class="close" onclick="closeOverlay('contact')">&times;</button>
+    <h2>Contact:</h2>
+    <p>dont even think about that</p>
+  </div>
+</body>
+</html>
