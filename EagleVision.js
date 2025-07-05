@@ -115,7 +115,7 @@ class EagleVision {
         font-family: 'Courier New', monospace;
         font-size: 10px;
         text-shadow: 0 0 5px #00ffff;
-      ">EAGLE VISION</div>
+      "> </div>
     `;
     
     document.body.appendChild(this.windowFrame);
@@ -175,13 +175,13 @@ class EagleVision {
   }
   
   startDynamicHighlighting() {
-    // Update highlighting periodically while active
-    this.updateInterval = setInterval(() => {
-      if (this.isActive) {
-        this.updateHighlighting();
-      }
-    }, this.updateFrequency);
-  }
+  // Reduce update frequency for better performance
+  this.updateInterval = setInterval(() => {
+    if (this.isActive) {
+      this.updateHighlighting();
+    }
+  }, 200); // Changed from 100ms to 200ms
+}
   
   stopDynamicHighlighting() {
     if (this.updateInterval) {
@@ -283,212 +283,130 @@ class EagleVision {
   }
   
   startVisualEffects() {
-    // Show the vision window and frame
-    this.windowFrame.style.display = 'block';
-    this.visionWindow.style.display = 'block';
-    
-    // Animate appearance
-    setTimeout(() => {
-      this.windowFrame.style.opacity = '1';
-      this.visionWindow.style.opacity = '1';
-    }, 10);
-    
-    // Add scanning effect
-    this.addScanningEffect();
-  }
+  // Show the vision window and frame
+  this.windowFrame.style.display = 'block';
+  this.visionWindow.style.display = 'block';
+  
+  // Animate appearance
+  setTimeout(() => {
+    this.windowFrame.style.opacity = '1';
+    this.visionWindow.style.opacity = '1';
+  }, 10);
+  
+  // Remove this line to disable scanning effect:
+  // this.addScanningEffect();
+}
   
   addScanningEffect() {
-    // Create a scanning line that moves across the vision window
-    const scanLine = document.createElement('div');
-    scanLine.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, 
-        transparent 0%, 
-        #00ffff 50%, 
-        transparent 100%
-      );
-      animation: scan 2s ease-in-out infinite;
-    `;
-    
-    // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes scan {
-        0% { transform: translateY(0); opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { transform: translateY(${this.windowSize.height - 8}px); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-    
-    this.visionWindow.appendChild(scanLine);
-    
-    // Remove scanning effect when vision deactivates
-    setTimeout(() => {
-      if (scanLine.parentNode) {
-        scanLine.parentNode.removeChild(scanLine);
-      }
-      if (style.parentNode) {
-        style.parentNode.removeChild(style);
-      }
-    }, this.duration);
+  // Scanning effect removed - no more animated bar
+  console.log('Vision window activated without scanning effect');
+}
+  
+  // Replace the current method with this optimized version
+isObjectPartiallyInVisionWindow(object, camera) {
+  // Quick frustum culling first
+  if (!camera.frustum) {
+    camera.frustum = new THREE.Frustum();
+    camera.projectionScreenMatrix = new THREE.Matrix4();
   }
   
-  // Improved detection: Check if ANY part of the object is visible in the vision window
-  isObjectPartiallyInVisionWindow(object, camera) {
-    // Calculate object's bounding box in world space
-    const box = new THREE.Box3().setFromObject(object);
-    
-    // Get the 8 corners of the bounding box
-    const corners = [
-      new THREE.Vector3(box.min.x, box.min.y, box.min.z),
-      new THREE.Vector3(box.min.x, box.min.y, box.max.z),
-      new THREE.Vector3(box.min.x, box.max.y, box.min.z),
-      new THREE.Vector3(box.min.x, box.max.y, box.max.z),
-      new THREE.Vector3(box.max.x, box.min.y, box.min.z),
-      new THREE.Vector3(box.max.x, box.min.y, box.max.z),
-      new THREE.Vector3(box.max.x, box.max.y, box.min.z),
-      new THREE.Vector3(box.max.x, box.max.y, box.max.z)
-    ];
-    
-    // Window bounds in screen coordinates
-    const windowCenterX = window.innerWidth / 2;
-    const windowCenterY = window.innerHeight / 2;
-    const halfWidth = this.windowSize.width / 2;
-    const halfHeight = this.windowSize.height / 2;
-    const windowMinX = windowCenterX - halfWidth;
-    const windowMaxX = windowCenterX + halfWidth;
-    const windowMinY = windowCenterY - halfHeight;
-    const windowMaxY = windowCenterY + halfHeight;
-    
-    // Check if any corner is visible in the window
-    let hasVisibleCorner = false;
-    let allBehind = true;
-    
-    for (const corner of corners) {
-      // Project corner to screen coordinates
-      const screenPosition = corner.clone().project(camera);
-      
-      // Check if in front of camera
-      if (screenPosition.z < 1) {
-        allBehind = false;
-        
-        // Convert to pixel coordinates
-        const x = (screenPosition.x + 1) / 2 * window.innerWidth;
-        const y = (-screenPosition.y + 1) / 2 * window.innerHeight;
-        
-        // Check if this corner is within window bounds
-        if (x >= windowMinX && x <= windowMaxX && y >= windowMinY && y <= windowMaxY) {
-          hasVisibleCorner = true;
-          break;
-        }
-      }
-    }
-    
-    // If all corners are behind camera, object is not visible
-    if (allBehind) {
-      return false;
-    }
-    
-    // If we found a visible corner, object is partially visible
-    if (hasVisibleCorner) {
-      return true;
-    }
-    
-    // Additional check: even if no corners are in window, 
-    // the object might still intersect if it's large enough to span across the window
-    // Check if the object's bounding box intersects with the window area
-    
-    // Project all corners and find screen space bounding box
-    let screenMinX = Infinity, screenMaxX = -Infinity;
-    let screenMinY = Infinity, screenMaxY = -Infinity;
-    let hasValidProjection = false;
-    
-    for (const corner of corners) {
-      const screenPosition = corner.clone().project(camera);
-      
-      if (screenPosition.z < 1) { // In front of camera
-        hasValidProjection = true;
-        const x = (screenPosition.x + 1) / 2 * window.innerWidth;
-        const y = (-screenPosition.y + 1) / 2 * window.innerHeight;
-        
-        screenMinX = Math.min(screenMinX, x);
-        screenMaxX = Math.max(screenMaxX, x);
-        screenMinY = Math.min(screenMinY, y);
-        screenMaxY = Math.max(screenMaxY, y);
-      }
-    }
-    
-    if (!hasValidProjection) {
-      return false;
-    }
-    
-    // Check if screen space bounding box intersects with window
-    const intersects = !(screenMaxX < windowMinX || screenMinX > windowMaxX || 
-                        screenMaxY < windowMinY || screenMinY > windowMaxY);
-    
-    return intersects;
+  camera.projectionScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+  camera.frustum.setFromProjectionMatrix(camera.projectionScreenMatrix);
+  
+  // Skip if object is not in camera frustum at all
+  const boundingBox = new THREE.Box3().setFromObject(object);
+  if (!camera.frustum.intersectsBox(boundingBox)) {
+    return false;
   }
+  
+  // Simplified bounds check using object center + radius
+  const center = boundingBox.getCenter(new THREE.Vector3());
+  const radius = boundingBox.getSize(new THREE.Vector3()).length() * 0.5;
+  
+  const screenPosition = center.clone().project(camera);
+  
+  // Check if behind camera
+  if (screenPosition.z >= 1) return false;
+  
+  // Convert to pixel coordinates
+  const x = (screenPosition.x + 1) / 2 * window.innerWidth;
+  const y = (-screenPosition.y + 1) / 2 * window.innerHeight;
+  
+  // Window bounds with radius buffer
+  const windowCenterX = window.innerWidth / 2;
+  const windowCenterY = window.innerHeight / 2;
+  const halfWidth = this.windowSize.width / 2 + radius * 50; // Add buffer
+  const halfHeight = this.windowSize.height / 2 + radius * 50;
+  
+  return (x >= windowCenterX - halfWidth && x <= windowCenterX + halfWidth && 
+          y >= windowCenterY - halfHeight && y <= windowCenterY + halfHeight);
+}
   
   // Create a shader material that clips glow effects to the window bounds
   createClippedGlowMaterial() {
-    const vertexShader = `
-      varying vec4 vScreenPosition;
-      
-      void main() {
-        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-        vScreenPosition = projectionMatrix * viewMatrix * worldPosition;
-        gl_Position = vScreenPosition;
-      }
-    `;
+  const vertexShader = `
+    varying vec4 vScreenPosition;
+    varying vec3 vWorldPosition;
     
-    const fragmentShader = `
-      uniform vec3 emissive;
-      uniform float emissiveIntensity;
-      uniform vec2 windowCenter;
-      uniform vec2 windowSize;
-      uniform vec2 screenSize;
-      varying vec4 vScreenPosition;
-      
-      void main() {
-        // Convert to screen coordinates
-        vec2 screenCoord = (vScreenPosition.xy / vScreenPosition.w) * 0.5 + 0.5;
-        screenCoord.y = 1.0 - screenCoord.y; // Flip Y
-        vec2 pixelCoord = screenCoord * screenSize;
-        
-        // Check if within window bounds
-        vec2 windowMin = windowCenter - windowSize * 0.5;
-        vec2 windowMax = windowCenter + windowSize * 0.5;
-        
-        if (pixelCoord.x < windowMin.x || pixelCoord.x > windowMax.x || 
-            pixelCoord.y < windowMin.y || pixelCoord.y > windowMax.y) {
-          discard; // Don't render outside window
-        }
-        
-        gl_FragColor = vec4(emissive * emissiveIntensity, 0.8);
-      }
-    `;
+    void main() {
+      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+      vWorldPosition = worldPosition.xyz;
+      vScreenPosition = projectionMatrix * viewMatrix * worldPosition;
+      gl_Position = vScreenPosition;
+    }
+  `;
+  
+  const fragmentShader = `
+    uniform vec3 emissive;
+    uniform float emissiveIntensity;
+    uniform vec2 windowCenter;
+    uniform vec2 windowSize;
+    uniform vec2 screenSize;
+    uniform float groundLevel;
+    varying vec4 vScreenPosition;
+    varying vec3 vWorldPosition;
     
-    return new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms: {
-        emissive: { value: new THREE.Color(0x00ffff) },
-        emissiveIntensity: { value: 0.7 },
-        windowCenter: { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) },
-        windowSize: { value: new THREE.Vector2(this.windowSize.width, this.windowSize.height) },
-        screenSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-      },
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-  }
+    void main() {
+      // Clip anything below ground level
+      if (vWorldPosition.y < groundLevel) {
+        discard;
+      }
+      
+      // Convert to screen coordinates
+      vec2 screenCoord = (vScreenPosition.xy / vScreenPosition.w) * 0.5 + 0.5;
+      screenCoord.y = 1.0 - screenCoord.y; // Flip Y
+      vec2 pixelCoord = screenCoord * screenSize;
+      
+      // Check if within window bounds
+      vec2 windowMin = windowCenter - windowSize * 0.5;
+      vec2 windowMax = windowCenter + windowSize * 0.5;
+      
+      if (pixelCoord.x < windowMin.x || pixelCoord.x > windowMax.x || 
+          pixelCoord.y < windowMin.y || pixelCoord.y > windowMax.y) {
+        discard; // Don't render outside window
+      }
+      
+      gl_FragColor = vec4(emissive * emissiveIntensity, 0.8);
+    }
+  `;
+  
+  return new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    uniforms: {
+      emissive: { value: new THREE.Color(0x00ffff) },
+      emissiveIntensity: { value: 0.7 },
+      windowCenter: { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) },
+      windowSize: { value: new THREE.Vector2(this.windowSize.width, this.windowSize.height) },
+      screenSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+      groundLevel: { value: 0.0 } // Ground level at Y = 0
+    },
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+}
   
   // Batch highlighting to avoid lag
   highlightInteractiveObjects() {
@@ -526,166 +444,180 @@ class EagleVision {
   }
 
   addOverlayGlow(object) {
-    // Add to highlighted objects list
-    this.highlightedObjects.push(object);
-    
-    // Get the appropriate scene to add glow objects to
-    const targetScene = this.currentScene === 'gallery' ? this.galleryScene : this.scene;
-    
-    object.traverse((child) => {
-      if (child.isMesh) {
-        // Create a duplicate mesh for the glow effect
-        const glowGeometry = child.geometry.clone();
-        const glowMaterial = this.createClippedGlowMaterial();
-        const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-        
-        // FIXED: Copy the complete transformation matrix and update every frame
-        child.updateMatrixWorld(true); // Force matrix update
-        glowMesh.matrix.copy(child.matrixWorld);
-        glowMesh.matrixAutoUpdate = false; // Use manually set matrix
-        
-        // Set render order to render on top
-        glowMesh.renderOrder = 9999;
-        
-        // Add to scene
-        targetScene.add(glowMesh);
-        
-        // Create wireframe overlay
-        const wireframeGeometry = new THREE.WireframeGeometry(child.geometry);
-        const wireframeMaterial = new THREE.ShaderMaterial({
-          vertexShader: `
-            varying vec4 vScreenPosition;
-            void main() {
-              vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-              vScreenPosition = projectionMatrix * viewMatrix * worldPosition;
-              gl_Position = vScreenPosition;
+  // Add to highlighted objects list
+  this.highlightedObjects.push(object);
+  
+  // Get the appropriate scene to add glow objects to
+  const targetScene = this.currentScene === 'gallery' ? this.galleryScene : this.scene;
+  
+  object.traverse((child) => {
+    if (child.isMesh) {
+      // Create a duplicate mesh for the glow effect
+      const glowGeometry = child.geometry.clone();
+      const glowMaterial = this.createClippedGlowMaterial();
+      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+      
+      // FIXED: Copy the complete transformation matrix and update every frame
+      child.updateMatrixWorld(true); // Force matrix update
+      glowMesh.matrix.copy(child.matrixWorld);
+      glowMesh.matrixAutoUpdate = false; // Use manually set matrix
+      
+      // Set render order to render on top
+      glowMesh.renderOrder = 9999;
+      
+      // Add to scene
+      targetScene.add(glowMesh);
+      
+      // Create wireframe overlay with ground clipping
+      const wireframeGeometry = new THREE.WireframeGeometry(child.geometry);
+      const wireframeMaterial = new THREE.ShaderMaterial({
+        vertexShader: `
+          varying vec4 vScreenPosition;
+          varying vec3 vWorldPosition;
+          void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            vScreenPosition = projectionMatrix * viewMatrix * worldPosition;
+            gl_Position = vScreenPosition;
+          }
+        `,
+        fragmentShader: `
+          uniform vec2 windowCenter;
+          uniform vec2 windowSize;
+          uniform vec2 screenSize;
+          uniform float groundLevel;
+          varying vec4 vScreenPosition;
+          varying vec3 vWorldPosition;
+          
+          void main() {
+            // Clip anything below ground level
+            if (vWorldPosition.y < groundLevel) {
+              discard;
             }
-          `,
-          fragmentShader: `
-            uniform vec2 windowCenter;
-            uniform vec2 windowSize;
-            uniform vec2 screenSize;
-            varying vec4 vScreenPosition;
             
-            void main() {
-              vec2 screenCoord = (vScreenPosition.xy / vScreenPosition.w) * 0.5 + 0.5;
-              screenCoord.y = 1.0 - screenCoord.y;
-              vec2 pixelCoord = screenCoord * screenSize;
-              
-              vec2 windowMin = windowCenter - windowSize * 0.5;
-              vec2 windowMax = windowCenter + windowSize * 0.5;
-              
-              if (pixelCoord.x < windowMin.x || pixelCoord.x > windowMax.x || 
-                  pixelCoord.y < windowMin.y || pixelCoord.y > windowMax.y) {
-                discard;
-              }
-              
-              gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
+            vec2 screenCoord = (vScreenPosition.xy / vScreenPosition.w) * 0.5 + 0.5;
+            screenCoord.y = 1.0 - screenCoord.y;
+            vec2 pixelCoord = screenCoord * screenSize;
+            
+            vec2 windowMin = windowCenter - windowSize * 0.5;
+            vec2 windowMax = windowCenter + windowSize * 0.5;
+            
+            if (pixelCoord.x < windowMin.x || pixelCoord.x > windowMax.x || 
+                pixelCoord.y < windowMin.y || pixelCoord.y > windowMax.y) {
+              discard;
             }
-          `,
-          uniforms: {
-            windowCenter: { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) },
-            windowSize: { value: new THREE.Vector2(this.windowSize.width, this.windowSize.height) },
-            screenSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-          },
-          transparent: true,
-          depthTest: false,
-          depthWrite: false
-        });
-        
-        const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
-        
-        // FIXED: Copy matrix for wireframe too
-        wireframe.matrix.copy(child.matrixWorld);
-        wireframe.matrixAutoUpdate = false;
-        wireframe.renderOrder = 10000;
-        
-        // Add to scene
-        targetScene.add(wireframe);
-        
-        // Store references for cleanup and continuous updates
-        this.glowObjects.push({
-          originalObject: object,
-          originalMesh: child,
-          glowMesh: glowMesh,
-          wireframe: wireframe
-        });
-      }
-    });
-  }
+            
+            gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
+          }
+        `,
+        uniforms: {
+          windowCenter: { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) },
+          windowSize: { value: new THREE.Vector2(this.windowSize.width, this.windowSize.height) },
+          screenSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+          groundLevel: { value: 0.0 } // Ground level at Y = 0
+        },
+        transparent: true,
+        depthTest: false,
+        depthWrite: false
+      });
+      
+      const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
+      
+      // FIXED: Copy matrix for wireframe too
+      wireframe.matrix.copy(child.matrixWorld);
+      wireframe.matrixAutoUpdate = false;
+      wireframe.renderOrder = 10000;
+      
+      // Add to scene
+      targetScene.add(wireframe);
+      
+      // Store references for cleanup and continuous updates
+      this.glowObjects.push({
+        originalObject: object,
+        originalMesh: child,
+        glowMesh: glowMesh,
+        wireframe: wireframe
+      });
+    }
+  });
+}
   
   update() {
-    if (!this.isActive) return;
-    
-    const currentTime = performance.now();
-    const elapsed = currentTime - this.startTime;
-    
-    // Check if duration has passed
-    if (elapsed >= this.duration) {
-      this.deactivate();
-      return;
-    }
-    
-    // Animate intensity based on time
-    const progress = elapsed / this.duration;
-    let intensity;
-    
-    if (progress < 0.1) {
-      // Fade in
-      intensity = progress / 0.1;
-    } else if (progress > 0.85) {
-      // Fade out
-      intensity = (1 - progress) / 0.15;
-    } else {
-      // Full intensity
-      intensity = 1;
-    }
-    
-    // Update transformations and shader uniforms for all glow objects
-    this.glowObjects.forEach(glowData => {
-      // FIXED: Continuously update matrices to follow original objects
-      if (glowData.originalMesh && glowData.glowMesh) {
+  if (!this.isActive) return;
+  
+  const currentTime = performance.now();
+  const elapsed = currentTime - this.startTime;
+  
+  // Check if duration has passed
+  if (elapsed >= this.duration) {
+    this.deactivate();
+    return;
+  }
+  
+  // Only update every other frame for performance
+  if (currentTime - this.lastUpdateTime < 33) { // ~30fps for matrix updates
+    return;
+  }
+  this.lastUpdateTime = currentTime;
+  
+  // Animate intensity based on time
+  const progress = elapsed / this.duration;
+  let intensity;
+  
+  if (progress < 0.1) {
+    intensity = progress / 0.1;
+  } else if (progress > 0.85) {
+    intensity = (1 - progress) / 0.15;
+  } else {
+    intensity = 1;
+  }
+  
+  // Batch uniform updates
+  const windowCenter = [window.innerWidth / 2, window.innerHeight / 2];
+  const screenSize = [window.innerWidth, window.innerHeight];
+  const groundLevel = 0.0; // Floor is at Y = 0
+  
+  // Update only visible glow objects
+  this.glowObjects.forEach(glowData => {
+    // Only update if object is likely visible
+    if (glowData.originalMesh && glowData.glowMesh) {
+      // Skip matrix update if object hasn't moved much
+      if (!glowData.lastMatrixUpdate || currentTime - glowData.lastMatrixUpdate > 100) {
         glowData.originalMesh.updateMatrixWorld(true);
         glowData.glowMesh.matrix.copy(glowData.originalMesh.matrixWorld);
+        if (glowData.wireframe) {
+          glowData.wireframe.matrix.copy(glowData.originalMesh.matrixWorld);
+        }
+        glowData.lastMatrixUpdate = currentTime;
       }
-      if (glowData.originalMesh && glowData.wireframe) {
-        glowData.wireframe.matrix.copy(glowData.originalMesh.matrixWorld);
-      }
-      
-      // Update glow mesh material
-      if (glowData.glowMesh && glowData.glowMesh.material && glowData.glowMesh.material.uniforms) {
-        if (glowData.glowMesh.material.uniforms.emissiveIntensity) {
-          glowData.glowMesh.material.uniforms.emissiveIntensity.value = 0.7 * intensity;
-        }
-        // Update window bounds in case of screen resize
-        if (glowData.glowMesh.material.uniforms.windowCenter) {
-          glowData.glowMesh.material.uniforms.windowCenter.value.set(window.innerWidth / 2, window.innerHeight / 2);
-        }
-        if (glowData.glowMesh.material.uniforms.screenSize) {
-          glowData.glowMesh.material.uniforms.screenSize.value.set(window.innerWidth, window.innerHeight);
-        }
-      }
-      
-      // Update wireframe material
-      if (glowData.wireframe && glowData.wireframe.material && glowData.wireframe.material.uniforms) {
-        if (glowData.wireframe.material.uniforms.windowCenter) {
-          glowData.wireframe.material.uniforms.windowCenter.value.set(window.innerWidth / 2, window.innerHeight / 2);
-        }
-        if (glowData.wireframe.material.uniforms.screenSize) {
-          glowData.wireframe.material.uniforms.screenSize.value.set(window.innerWidth, window.innerHeight);
-        }
-      }
-    });
-    
-    // Pulse the window frame
-    if (this.windowFrame) {
-      const pulse = 0.7 + 0.3 * Math.sin(elapsed * 0.005);
-      this.windowFrame.style.boxShadow = `
-        0 0 ${20 * pulse}px rgba(0, 255, 255, ${0.5 * intensity}),
-        inset 0 0 ${20 * pulse}px rgba(0, 255, 255, ${0.2 * intensity})
-      `;
     }
+    
+    // Batch shader uniform updates
+    if (glowData.glowMesh?.material?.uniforms) {
+      const uniforms = glowData.glowMesh.material.uniforms;
+      if (uniforms.emissiveIntensity) uniforms.emissiveIntensity.value = 0.7 * intensity;
+      if (uniforms.windowCenter) uniforms.windowCenter.value.set(windowCenter[0], windowCenter[1]);
+      if (uniforms.screenSize) uniforms.screenSize.value.set(screenSize[0], screenSize[1]);
+      if (uniforms.groundLevel) uniforms.groundLevel.value = groundLevel; // Add ground clipping
+    }
+    
+    if (glowData.wireframe?.material?.uniforms) {
+      const uniforms = glowData.wireframe.material.uniforms;
+      if (uniforms.windowCenter) uniforms.windowCenter.value.set(windowCenter[0], windowCenter[1]);
+      if (uniforms.screenSize) uniforms.screenSize.value.set(screenSize[0], screenSize[1]);
+      if (uniforms.groundLevel) uniforms.groundLevel.value = groundLevel; // Add ground clipping
+    }
+  });
+  
+  // Pulse the window frame (less frequently)
+  if (this.windowFrame && currentTime % 100 < 16) { // ~10fps for UI effects
+    const pulse = 0.7 + 0.3 * Math.sin(elapsed * 0.005);
+    this.windowFrame.style.boxShadow = `
+      0 0 ${20 * pulse}px rgba(0, 255, 255, ${0.5 * intensity}),
+      inset 0 0 ${20 * pulse}px rgba(0, 255, 255, ${0.2 * intensity})
+    `;
   }
+}
   
   deactivate() {
     if (!this.isActive) return;
